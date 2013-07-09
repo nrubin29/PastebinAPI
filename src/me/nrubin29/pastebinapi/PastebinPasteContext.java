@@ -39,7 +39,7 @@ public class PastebinPasteContext {
 	 * @param text The text of the paste.
 	 * @return The same instance of PastebinPasteContext with the text set as given.
 	 */
-	public PastebinPasteContext withText(String text) {
+	public PastebinPasteContext withPasteText(String text) {
 		this.text = text;
 		return this;
 	}
