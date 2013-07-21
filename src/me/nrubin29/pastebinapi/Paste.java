@@ -5,41 +5,28 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
 
-public class PastebinPasteContext {
-
-	/**
-	 * Represents a privacy level of public.
-	 */
-	public static final int PUBLIC = 0;
-	
-	/**
-	 * Represents a privacy level of unlisted.
-	 */
-	public static final int UNLISTED = 1;
-	
-	/**
-	 * Represents a privacy level of private.
-	 */
-	public static final int PRIVATE = 2;
+public class Paste {
 	
 	private String apikey = "";
 	private URL baseURL;
 	
-	PastebinPasteContext(String apikey) {
+	protected Paste(String apikey) {
 		this.apikey = apikey;
 		try { baseURL = new URL("http://pastebin.com/api/api_post.php"); }
 		catch (Exception e) { }
 	}
 	
-	private String text, username, password, pastename, pasteformat, pasteexpiredate;
-	private int pasteprivate = -1;
+	private String text, username, password, name;
+	private Format format;
+	private PrivacyLevel privacylevel = PrivacyLevel.PUBLIC;
+	private ExpireDate expiredate = ExpireDate.NEVER;
 	
 	/**
 	 * Sets the text of the paste.
 	 * @param text The text of the paste.
-	 * @return The same instance of PastebinPasteContext with the text set as given.
+	 * @return The same instance of Paste with the text set as given.
 	 */
-	public PastebinPasteContext withPasteText(String text) {
+	public Paste withText(String text) {
 		this.text = text;
 		return this;
 	}
@@ -47,9 +34,9 @@ public class PastebinPasteContext {
 	/**
 	 * Sets the username of the paster.
 	 * @param username The username of the paster.
-	 * @return The same instance of PastebinPasteContext with the username set as given.
+	 * @return The same instance of Paste with the username set as given.
 	 */
-	public PastebinPasteContext withUsername(String username) {
+	public Paste withUsername(String username) {
 		this.username = username;
 		return this;
 	}
@@ -57,9 +44,9 @@ public class PastebinPasteContext {
 	/**
 	 * Sets the password of the paster.
 	 * @param password The password of the paster.
-	 * @return The same instance of PastebinPasteContext with the password set as given.
+	 * @return The same instance of Paste with the password set as given.
 	 */
-	public PastebinPasteContext withPassword(String password) {
+	public Paste withPassword(String password) {
 		this.password = password;
 		return this;
 	}
@@ -67,40 +54,40 @@ public class PastebinPasteContext {
 	/**
 	 * Sets the name of the paste.
 	 * @param pastename The name of the paste.
-	 * @return The same instance of PastebinPasteContext with the name set as given.
+	 * @return The same instance of Paste with the name set as given.
 	 */
-	public PastebinPasteContext withPasteName(String pastename) {
-		this.pastename = pastename;
+	public Paste withName(String pastename) {
+		this.name = pastename;
 		return this;
 	}
 	
 	/**
-	 * Sets the format of the paste. See http://pastebin.com/api#5 for valid formats.
-	 * @param pasteformat The format of the paste.
-	 * @return The same instance of PastebinPasteContext with the format set as given.
+	 * Sets the paste format.
+	 * @param pasteformat The paste format.
+	 * @return The same instance of Paste with the format set as given.
 	 */
-	public PastebinPasteContext withPasteFormat(String pasteformat) {
-		this.pasteformat = pasteformat;
+	public Paste withFormat(Format pasteformat) {
+		this.format = pasteformat;
 		return this;
 	}
 	
 	/**
-	 * Sets the expiration date of the paste. See http://pastebin.com/api#6 for valid formats.
+	 * Sets the expiration date of the paste.
 	 * @param pasteexpiredate The expiration date of the paste.
-	 * @return The same instance of PastebinPasteContext with the expiration date set as given.
+	 * @return The same instance of Paste with the expiration date set as given.
 	 */
-	public PastebinPasteContext withPasteExpireDate(String pasteexpiredate) {
-		this.pasteexpiredate = pasteexpiredate;
+	public Paste withExpireDate(ExpireDate pasteexpiredate) {
+		this.expiredate = pasteexpiredate;
 		return this;
 	}
 	
 	/**
-	 * Sets the privacy level of the paste. Use the PUBLIC, UNLISTED, and PRIVATE static fields of this class.
+	 * Sets the privacy level of the paste.
 	 * @param pasteprivate The privacy level of the paste.
-	 * @return The same instance of PastebinPasteContext with the privacy level set as given.
+	 * @return The same instance of Paste with the privacy level set as given.
 	 */
-	public PastebinPasteContext withPastePrivacySetting(int pasteprivate) {
-		this.pasteprivate = pasteprivate;
+	public Paste withPrivacyLevel(PrivacyLevel privacylevel) {
+		this.privacylevel = privacylevel;
 		return this;
 	}
 	
@@ -136,10 +123,10 @@ public class PastebinPasteContext {
 	
 	private String argsToPOST() {
 		String args = "api_dev_key=" + apikey + "&api_option=paste&api_paste_code=" + text;
-		if (pastename != null) args += "&api_paste_name=" + pastename;
-		if (pasteformat != null) args += "&api_paste_format=" + pasteformat;
-		if (pasteexpiredate != null) args += "&api_paste_expire_date=" + pasteexpiredate;
-		if (pasteprivate != -1) args += "&api_paste_private=" + pasteprivate;
+		if (name != null) args += "&api_paste_name=" + name;
+		if (format != null) args += "&api_paste_format=" + format.getFormat();
+		if (expiredate != null) args += "&api_paste_expire_date=" + expiredate.getDate();
+		args += "&api_paste_private=" + privacylevel.getLevel();
 		if (username != null && password != null) {
 			String loginargs = "api_dev_key=" + apikey + "&api_user_name=" + username + "&api_user_password=" + password; 
 			try {
