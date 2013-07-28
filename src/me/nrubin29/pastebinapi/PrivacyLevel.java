@@ -15,4 +15,13 @@ public enum PrivacyLevel {
 	public int getLevel() {
 		return level;
 	}
+
+    public static PrivacyLevel valueOf(int i) {
+        switch (i) {
+            case 0: return PUBLIC;
+            case 1: return UNLISTED;
+            case 2: return PRIVATE;
+            default: return null;
+        }
+    }
 }

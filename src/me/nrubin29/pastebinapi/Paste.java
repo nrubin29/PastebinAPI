@@ -1,156 +1,120 @@
 package me.nrubin29.pastebinapi;
 
-import java.io.DataOutputStream;
-import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class Paste {
-	
-	private String apikey = "";
-	private URL baseURL;
-	
-	protected Paste(String apikey) {
-		this.apikey = apikey;
-		try { baseURL = new URL("http://pastebin.com/api/api_post.php"); }
-		catch (Exception e) { }
-	}
-	
-	private String text, username, password, name;
-	private Format format;
-	private PrivacyLevel privacylevel = PrivacyLevel.PUBLIC;
-	private ExpireDate expiredate = ExpireDate.NEVER;
-	
-	/**
-	 * Sets the text of the paste.
-	 * @param text The text of the paste.
-	 * @return The same instance of Paste with the text set as given.
-	 */
-	public Paste withText(String text) {
-		this.text = text;
-		return this;
-	}
-	
-	/**
-	 * Sets the username of the paster.
-	 * @param username The username of the paster.
-	 * @return The same instance of Paste with the username set as given.
-	 */
-	public Paste withUsername(String username) {
-		this.username = username;
-		return this;
-	}
-	
-	/**
-	 * Sets the password of the paster.
-	 * @param password The password of the paster.
-	 * @return The same instance of Paste with the password set as given.
-	 */
-	public Paste withPassword(String password) {
-		this.password = password;
-		return this;
-	}
-	
-	/**
-	 * Sets the name of the paste.
-	 * @param pastename The name of the paste.
-	 * @return The same instance of Paste with the name set as given.
-	 */
-	public Paste withName(String pastename) {
-		this.name = pastename;
-		return this;
-	}
-	
-	/**
-	 * Sets the paste format.
-	 * @param pasteformat The paste format.
-	 * @return The same instance of Paste with the format set as given.
-	 */
-	public Paste withFormat(Format pasteformat) {
-		this.format = pasteformat;
-		return this;
-	}
-	
-	/**
-	 * Sets the expiration date of the paste.
-	 * @param pasteexpiredate The expiration date of the paste.
-	 * @return The same instance of Paste with the expiration date set as given.
-	 */
-	public Paste withExpireDate(ExpireDate pasteexpiredate) {
-		this.expiredate = pasteexpiredate;
-		return this;
-	}
-	
-	/**
-	 * Sets the privacy level of the paste.
-	 * @param pasteprivate The privacy level of the paste.
-	 * @return The same instance of Paste with the privacy level set as given.
-	 */
-	public Paste withPrivacyLevel(PrivacyLevel privacylevel) {
-		this.privacylevel = privacylevel;
-		return this;
-	}
-	
-	/**
-	 * Posts using the information given.
-	 * @return A String representing either a URL or a String representing the error.
-	 */
-	public String post() {
-		try {
-			HttpURLConnection connection = (HttpURLConnection) baseURL.openConnection();           
-	    	connection.setDoOutput(true);
-	    	connection.setDoInput(true);
-	    	connection.setInstanceFollowRedirects(false); 
-	    	connection.setRequestMethod("POST"); 
-	    	connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); 
-	    	connection.setRequestProperty("charset", "utf-8");
-	    	connection.setRequestProperty("Content-Length", "" + argsToPOST().getBytes().length);
-	    	connection.setUseCaches(false);
 
-	    	DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-	    	wr.writeBytes(argsToPOST());
-	    	wr.flush();
-	    	wr.close();
-	    	connection.disconnect();
-	    	
-	    	Scanner s = new Scanner(connection.getInputStream());
-	    	return s.nextLine();
-		}
-		catch (Exception e) { e.printStackTrace(); }
-		
-		return null;
-	}
-	
-	private String argsToPOST() {
-		String args = "api_dev_key=" + apikey + "&api_option=paste&api_paste_code=" + text;
-		if (name != null) args += "&api_paste_name=" + name;
-		if (format != null) args += "&api_paste_format=" + format.getFormat();
-		if (expiredate != null) args += "&api_paste_expire_date=" + expiredate.getDate();
-		args += "&api_paste_private=" + privacylevel.getLevel();
-		if (username != null && password != null) {
-			String loginargs = "api_dev_key=" + apikey + "&api_user_name=" + username + "&api_user_password=" + password; 
-			try {
-				HttpURLConnection connection = (HttpURLConnection) new URL("http://pastebin.com/api/api_login.php").openConnection();           
-		    	connection.setDoOutput(true);
-		    	connection.setDoInput(true);
-		    	connection.setInstanceFollowRedirects(false); 
-		    	connection.setRequestMethod("POST"); 
-		    	connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); 
-		    	connection.setRequestProperty("charset", "utf-8");
-		    	connection.setRequestProperty("Content-Length", "" + loginargs.getBytes().length);
-		    	connection.setUseCaches(false);
+    private PastebinAPI api;
+    private String key, name;
+    private int size, hits;
+    private Date date, expiredate;
+    private PrivacyLevel level;
+    private Format format;
+    private URL url;
 
-		    	DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-		    	wr.writeBytes(loginargs);
-		    	wr.flush();
-		    	wr.close();
-		    	connection.disconnect();
-		    	
-		    	Scanner s = new Scanner(connection.getInputStream());
-		    	args += "&api_user_key=" + s.nextLine();
-			}
-			catch (Exception e) { e.printStackTrace(); }
-		}
-		return args;
-	}
+    protected Paste(PastebinAPI api, ArrayList<String> args) throws PastebinException {
+        this.api = api;
+        for (String arg : args) {
+            arg = arg.substring(arg.indexOf("_") + 1, arg.lastIndexOf("<"));
+            if (arg.startsWith("key")) key = sub(arg);
+            else if (arg.startsWith("date")) date = new Date(Long.valueOf(sub(arg)));
+            else if (arg.startsWith("title")) name = sub(arg);
+            else if (arg.startsWith("size")) size = Integer.valueOf(sub(arg));
+            else if (arg.startsWith("expire_date")) expiredate = new Date(Long.valueOf(sub(arg)));
+            else if (arg.startsWith("private")) level = PrivacyLevel.valueOf(Integer.parseInt(sub(arg)));
+            else if (arg.startsWith("format_long")) format = Format.valueOf(sub(arg));
+            else if (arg.startsWith("url")) {
+                try {
+                    url = new URL(sub(arg));
+                } catch (MalformedURLException e) {
+                    throw new PastebinException("Invalid URL returned!");
+                }
+            } else if (arg.startsWith("hits")) hits = Integer.valueOf(sub(arg));
+        }
+    }
+
+    private String sub(String str) {
+        return str.substring(str.indexOf(">") + 1);
+    }
+
+    /**
+     * Gets the paste key.
+     * @return The paste key.
+     */
+    public String getKey() {
+        return key;
+    }
+
+    /**
+     * Gets the paste name.
+     * @return The paste name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Gets the paste size.
+     * @return The paste size.
+     */
+    public int getSize() {
+        return size;
+    }
+
+    /**
+     * Gets the number of paste hits.
+     * @return The number of paste hits.
+     */
+    public int getHits() {
+        return hits;
+    }
+
+    /**
+     * Gets the date of creation.
+     * @return The date of creation.
+     */
+    public Date getDate() {
+        return date;
+    }
+
+    /**
+     * Gets the date of expiration.
+     * @return The date of expiration.
+     */
+    public Date getExpireDate() {
+        return expiredate;
+    }
+
+    /**
+     * Gets the privacy level of the paste.
+     * @return A value from the PrivacyLevel enum representing the paste privacy level.
+     * @see PrivacyLevel
+     */
+    public PrivacyLevel getLevel() {
+        return level;
+    }
+
+    /**
+     * Gets the format of the paste.
+     * @return A value from the Format enum representing the paste format.
+     * @see Format
+     */
+    public Format getFormat() {
+        return format;
+    }
+
+    /**
+     * Gets the URL of the paste.
+     * @return The URL of the paste.
+     */
+    public URL getURL() {
+        return url;
+    }
+
+    public String[] getText() throws PastebinException {
+        return api.getUtils().post("http://pastebin.com/raw.php?i=" + key, null);
+    }
 }
