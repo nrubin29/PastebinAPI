@@ -10,13 +10,13 @@ public enum ExpireDate {
 	TWO_WEEKS("2W"),
 	ONE_MONTH("1M");
 	
-	private String date;
+	private String code;
 	
-	private ExpireDate(String date) {
-		this.date = date;
+	private ExpireDate(String code) {
+		this.code = code;
 	}
 	
-	public String getDate() {
-		return date;
+	public String getCode() {
+		return code;
 	}
 }

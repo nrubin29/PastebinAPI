@@ -25,7 +25,6 @@ public class Parser {
                 if (arg.startsWith("key")) vals.put(key, sub(arg));
             }
         }
-        for (String str : vals.values()) System.out.println(str);
         return vals;
     }
 

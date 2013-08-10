@@ -71,17 +71,17 @@ public class CreatePaste {
 	
 	/**
 	 * Posts using the information given.
-	 * @return A String representing either a URL or a String representing the error.
+	 * @return The URL of the paste.
 	 */
 	public String post() throws PastebinException {
 		return api.getUtils().post(argsToPOST())[0];
 	}
 	
 	private String argsToPOST() {
-		String args = "api_dev_key=" + api.getAPIKey() + "&api_option=paste&api_paste_code=" + text;
+		String args = "api_option=paste&api_paste_code=" + text;
 		if (name != null) args += "&api_paste_name=" + name;
 		if (format != null) args += "&api_paste_format=" + format.getFormat();
-		args += "&api_paste_expire_date=" + expiredate.getDate();
+		args += "&api_paste_expire_date=" + expiredate.getCode();
 		args += "&api_paste_private=" + privacylevel.getLevel();
 		if (user != null) args += "&api_user_key=" + user.getUserKey();
 		return args;

@@ -13,8 +13,12 @@ public class PastebinAPI {
 	 */
 	public PastebinAPI(String apikey) {
 		this.apikey = apikey;
-		this.utils = new Utils();
+		this.utils = new Utils(this);
 	}
+
+    protected Utils getUtils() {
+        return utils;
+    }
 	
 	/**
 	 * Get the supplied API key.
@@ -31,10 +35,6 @@ public class PastebinAPI {
 	public CreatePaste createPaste() {
 		return new CreatePaste(this);
 	}
-	
-	protected Utils getUtils() {
-		return utils;
-	}
 
     /**
      * Get a new User with a username and password.
@@ -46,11 +46,16 @@ public class PastebinAPI {
         return new User(this, username, password);
     }
 
-    public ArrayList<Paste> getTrendingPastes() throws PastebinException {
-        return parse(utils.post("api_dev_key=" + apikey + "&api_option=trends"));
+    /**
+     * Get a Paste[] containing all trending pastes.
+     * @return A Paste[] containing all trending pastes.
+     * @throws PastebinException Thrown if an error occurs.
+     */
+    public Paste[] getTrendingPastes() throws PastebinException {
+        return parse(utils.post("api_option=trends"));
     }
 
-    protected ArrayList<Paste> parse(String[] args) throws PastebinException {
+    protected Paste[] parse(String[] args) throws PastebinException {
         ArrayList<Paste> pastes = new ArrayList<Paste>();
         ArrayList<String> current = new ArrayList<String>();
 
@@ -63,6 +68,6 @@ public class PastebinAPI {
                 else if (str.startsWith("<paste_")) current.add(str);
             }
         }
-        return pastes;
+        return pastes.toArray(new Paste[pastes.size()]);
     }
 }

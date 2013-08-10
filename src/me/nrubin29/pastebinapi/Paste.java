@@ -114,7 +114,28 @@ public class Paste {
         return url;
     }
 
+    /**
+     * Gets the raw text of the paste.
+     * @return A String[] containing all lines of the paste.
+     * @throws PastebinException Thrown if an error occurs; contains the error message.
+     */
     public String[] getText() throws PastebinException {
         return api.getUtils().post("http://pastebin.com/raw.php?i=" + key, null);
+    }
+
+    /**
+     * Gets the raw text of the paste.
+     * @param lineSeparator The text that separates each line of the raw text.
+     * @return A String containing all lines of the paste separated by the lineSeparator.
+     * @throws PastebinException Thrown if an error occurs; contains the error message.
+     */
+    public String getText(String lineSeparator) throws PastebinException {
+        String result = "";
+
+        for (String str : getText()) {
+            result += str + lineSeparator;
+        }
+
+        return result;
     }
 }

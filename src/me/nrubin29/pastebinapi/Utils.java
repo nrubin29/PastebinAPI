@@ -8,10 +8,17 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Utils {
+
+    private PastebinAPI api;
+
+    protected Utils(PastebinAPI api) {
+        this.api = api;
+    }
 	
 	protected String[] sendToURL(URL url, String text) throws PastebinException {
 		try {
             boolean arg = (text != null);
+            if (arg) text = "api_dev_key=" + api.getAPIKey() + text;
 
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 	    	if (arg) connection.setDoOutput(true);

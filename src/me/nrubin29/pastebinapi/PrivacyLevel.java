@@ -5,16 +5,6 @@ public enum PrivacyLevel {
 	PUBLIC(0),
 	UNLISTED(1),
 	PRIVATE(2);
-	
-	private int level;
-	
-	private PrivacyLevel(int level) {
-		this.level = level;
-	}
-	
-	public int getLevel() {
-		return level;
-	}
 
     public static PrivacyLevel valueOf(int i) {
         switch (i) {
@@ -24,4 +14,14 @@ public enum PrivacyLevel {
             default: return null;
         }
     }
+
+	private int level;
+	
+	private PrivacyLevel(int level) {
+		this.level = level;
+	}
+	
+	public int getLevel() {
+		return level;
+	}
 }

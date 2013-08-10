@@ -9,7 +9,6 @@ public class User {
 
     private PastebinAPI api;
     private String username, password, userkey;
-
     private ExpireDate expire;
     private URL avatarURL, website;
     private PrivacyLevel privacyLevel;
@@ -54,7 +53,7 @@ public class User {
      * @return An ArrayList<Paste> containing all pastes.
      * @throws PastebinException Thrown if an error occurs; contains the error message.
      */
-    public ArrayList<Paste> getPastes() throws PastebinException {
+    public Paste[] getPastes() throws PastebinException {
         return getPastes(Integer.MAX_VALUE);
     }
 
@@ -64,16 +63,26 @@ public class User {
      * @return An ArrayList<Paste> containing all pastes.
      * @throws PastebinException Thrown if an error occurs; contains the error message.
      */
-    public ArrayList<Paste> getPastes(int results_limit) throws PastebinException {
-        return api.parse(api.getUtils().post("api_dev_key=" + api.getAPIKey() + "&api_user_key=" + userkey + "&api_results_limit=" + results_limit + "&api_option=list"));
+    public Paste[] getPastes(int results_limit) throws PastebinException {
+        return api.parse(api.getUtils().post("api_user_key=" + userkey + "&api_results_limit=" + results_limit + "&api_option=list"));
     }
 
     /**
-     * Removes a user's paste
+     * Remove a user's paste
+     * @param pasteKey The paste's key.
+     * @throws PastebinException Thrown if an error occurs; contains the error message.
+     */
+    public void removePaste(String pasteKey) throws PastebinException {
+        api.getUtils().post("api_dev_key=" + api.getAPIKey() + "&api_user_key=" + userkey + "&api_paste_key=" + pasteKey + "&api_option=delete");
+    }
+
+    /**
+     * Remove a user's paste
      * @param p The paste to remove.
+     * @throws PastebinException Thrown if an error occurs; contains the error message.
      */
     public void removePaste(Paste p) throws PastebinException {
-        api.getUtils().post("api_dev_key=" + api.getAPIKey() + "&api_user_key=" + userkey + "&api_paste_key=" + p.getKey() + "&api_option=delete");
+        removePaste(p.getKey());
     }
 
     /**
