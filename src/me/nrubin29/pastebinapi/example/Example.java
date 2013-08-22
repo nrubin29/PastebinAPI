@@ -2,56 +2,58 @@ package me.nrubin29.pastebinapi.example;
 
 import me.nrubin29.pastebinapi.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Example {
 
-	public static void main(String[] args) throws PastebinException {
+	public static void main(String[] args) throws PastebinException, IOException /* You'll probably want to handle these exceptions. */ {
 
         /* PastebinAPI initialization */
 
-		PastebinAPI api = new PastebinAPI("Put your developer key here");
+		PastebinAPI api = new PastebinAPI("Put your developer key here.");
 
         /* Getting a user */
 
-        User user = api.getUser("username", "password"); // Without get an instance of User,
-                                                         // you can only get trending pastes and paste as a guest.
+        User user = api.getUser("username", "password");                   // Without get an instance of User,
+                                                                           // you can only get trending pastes and paste as a guest.
 
         /* Getting user information */
 
-        String userEmail = user.getEmail(); // There are plenty of other get methods in the User class.
+        String userEmail = user.getEmail();                                // There are plenty of other get methods in the User class.
 
         /* Creating a paste */
 		
-		CreatePaste paste = user.createPaste() // You can call api.createPaste() to create a paste as a guest.
+		CreatePaste paste = user.createPaste()                             // You can call api.createPaste() to create a paste as a guest.
 				.withName("Paste name")
 				.withFormat(Format.None)
 				.withPrivacyLevel(PrivacyLevel.PUBLIC)
 				.withExpireDate(ExpireDate.NEVER)
-				.withText("Text to paste");
+				.withText("Text to paste");                                // You can also call withFile and give it a File. It will paste the text from that file.
 
-		String url = paste.post(); // The post method posts the paste and returns the URL.
+		String url = paste.post();                                         // The post method posts the paste and returns the URL.
+                                                                           // If you use a File in the paste, an IOException may be thrown.
 
         /* Getting pastes from a user */
 
-        Paste[] pastes = user.getPastes(); // You can also specify a limit on the number of results returned.
+        Paste[] pastes = user.getPastes();                                 // You can also specify a limit on the number of results returned.
 
         /* Getting raw text from a paste */
 
         Paste firstPaste = pastes[0];
 
-        String[] rawText = firstPaste.getText(); // You can also get a String containing the raw text by adding a String to the getText() method.
-                                                 // There are plenty of other get methods in the Paste class.
+        String[] rawText = firstPaste.getText();                           // You can also get a String containing the raw text by adding a String to the getText() method.
+                                                                           // There are plenty of other get methods in the Paste class.
 
         /* Removing a user's paste */
 
-        user.removePaste("pastekey"); // You can also give it a Paste.
+        user.removePaste("pastekey");                                      // You can also give it a Paste.
 
         /* Get trending pastes */
 
         Paste[] trending = api.getTrendingPastes();
 
-        /* NOTE: Various methods may throw a PastebinException, which will contain the error message Pastebin returns. */
+                                                                           // NOTE: Various methods may throw a PastebinException, which will contain the error message Pastebin returns.
 	}
 }
 

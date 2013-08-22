@@ -1,5 +1,7 @@
 package me.nrubin29.pastebinapi;
 
+import java.io.*;
+
 public class CreatePaste {
 	
 	private PastebinAPI api;
@@ -9,13 +11,19 @@ public class CreatePaste {
 	}
 
     private User user;
+    private File file;
 	private String text, name;
 	private Format format;
 	private PrivacyLevel privacylevel = PrivacyLevel.PUBLIC;
 	private ExpireDate expiredate = ExpireDate.NEVER;
-	
+
+    protected CreatePaste withUser(User user) {
+        this.user = user;
+        return this;
+    }
+
 	/**
-	 * Sets the text of the paste.
+	 * Sets the text of the paste. If you use this method, you cannot use withFile.
 	 * @param text The text of the paste.
 	 * @return The same instance of CreatePaste with the text set as given.
 	 */
@@ -24,8 +32,13 @@ public class CreatePaste {
 		return this;
 	}
 
-    protected CreatePaste withUser(User user) {
-        this.user = user;
+    /**
+     * Sets the text of the paste to the contents of the file. If you use this method, you cannot use withText.
+     * @param file The file from which to get the text of the paste.
+     * @return The same instance of CreatePaste with the file set as given.
+     */
+    public CreatePaste withFile(File file) {
+        this.file = file;
         return this;
     }
 
@@ -70,15 +83,25 @@ public class CreatePaste {
 	}
 	
 	/**
-	 * Posts using the information given.
+	 * Posts using the information given. You should probably run this in a new thread.
 	 * @return The URL of the paste.
+     * @throws PastebinException Thrown if an error occurs; contains the error message returned by Pastebin.
+     * @throws IOException Thrown if you use withFile instead of withText and an IOException is thrown.
 	 */
-	public String post() throws PastebinException {
+	public String post() throws PastebinException, IOException {
 		return api.getUtils().post(argsToPOST())[0];
 	}
 	
-	private String argsToPOST() {
-		String args = "api_option=paste&api_paste_code=" + text;
+	private String argsToPOST() throws IOException {
+		String args = "api_option=paste";
+        if (text != null) args += "&api_paste_code=" + text;
+        else if (file != null) {
+            BufferedReader read = new BufferedReader(new FileReader(file));
+            args += "&api_paste_code=";
+            while(read.ready()) {
+                args += read.readLine() + "\n";
+            }
+        }
 		if (name != null) args += "&api_paste_name=" + name;
 		if (format != null) args += "&api_paste_format=" + format.getFormat();
 		args += "&api_paste_expire_date=" + expiredate.getCode();

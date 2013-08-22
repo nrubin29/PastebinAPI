@@ -1,4 +1,4 @@
-PastebinAPI (1.2.1)
+PastebinAPI (1.2.2)
 ===========
 
 **A complete API for Pastebin written in Java.**
@@ -10,6 +10,9 @@ Learn how to use PastebinAPI [here](https://github.com/nrubin29/PastebinAPI/blob
 Changelog
 ===========
 
+* **1.2.2**
+  * You can now create a paste and give it a File. It will create the paste using the text from that file.
+
 * **1.2.1**
   * A bunch of enhancements.
 
@@ -18,7 +21,7 @@ Changelog
 
 * **1.1**
   * Adds enums for expire date, format, and privacy level. 
-  * Renames PastebinPasteContext to Paste. 
+  * Renames PastebinPasteContext to CreatePaste. 
   * Fixes example.
 
 * **1.0.1**
