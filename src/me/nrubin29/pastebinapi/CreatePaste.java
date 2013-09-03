@@ -89,24 +89,23 @@ public class CreatePaste {
      * @throws IOException Thrown if you use withFile instead of withText and an IOException is thrown.
 	 */
 	public String post() throws PastebinException, IOException {
-		return api.getUtils().post(argsToPOST())[0];
-	}
-	
-	private String argsToPOST() throws IOException {
-		String args = "api_option=paste";
-        if (text != null) args += "&api_paste_code=" + text;
+		Poster p = api.getNewPoster();
+
+        p.withArg("api_option", "paste");
+        if (text != null) p.withArg("api_paste_code", text);
         else if (file != null) {
+            StringBuffer contents = new StringBuffer();
             BufferedReader read = new BufferedReader(new FileReader(file));
-            args += "&api_paste_code=";
-            while(read.ready()) {
-                args += read.readLine() + "\n";
-            }
+            while(read.ready()) contents.append(read.readLine() + "\n");
+            read.close();
+            p.withArg("api_paste_code", contents.toString());
         }
-		if (name != null) args += "&api_paste_name=" + name;
-		if (format != null) args += "&api_paste_format=" + format.getFormat();
-		args += "&api_paste_expire_date=" + expiredate.getCode();
-		args += "&api_paste_private=" + privacylevel.getLevel();
-		if (user != null) args += "&api_user_key=" + user.getUserKey();
-		return args;
+        if (name != null) p.withArg("api_paste_name", name);
+        if (format != null) p.withArg("api_paste_format", format.getFormat());
+        p.withArg("api_paste_expire_date", expiredate.getCode());
+        p.withArg("api_paste_private", privacylevel.getLevel());
+        if (user != null) p.withArg("api_user_key", user.getUserKey());
+
+        return p.post()[0];
 	}
 }

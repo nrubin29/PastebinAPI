@@ -2,7 +2,6 @@ package me.nrubin29.pastebinapi;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class User {
@@ -20,16 +19,21 @@ public class User {
         this.username = username;
         this.password = password;
 
-        String loginargs = "api_dev_key=" + api.getAPIKey() + "&api_user_name=" + username + "&api_user_password=" + password;
+        Poster login = api.getNewPoster();
 
-        try {
-            userkey = api.getUtils().sendToURL(new URL("http://pastebin.com/api/api_login.php"), loginargs)[0];
-        }
-        catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+        try { login.withURL(new URL("http://pastebin.com/api/api_login.php")); }
+        catch (MalformedURLException ignored) { }
 
-        Parser p = new Parser(api.getUtils().post("api_dev_key=" + api.getAPIKey() + "&api_user_key=" + userkey + "&api_option=userdetails"));
+        login.withArg("api_user_name", username);
+        login.withArg("api_user_password", password);
+
+        userkey = login.post()[0];
+
+        Poster info = api.getNewPoster();
+        info.withArg("api_user_key", userkey);
+        info.withArg("api_option", "userdetails");
+
+        Parser p = new Parser(info.post());
         p.addKey("expiration, avatar_url", "private", "website", "email", "location", "account_type");
         HashMap<String, String> ret = p.parse();
         for (String key : ret.keySet()) {
@@ -64,7 +68,7 @@ public class User {
      * @throws PastebinException Thrown if an error occurs; contains the error message.
      */
     public Paste[] getPastes(int results_limit) throws PastebinException {
-        return api.parse(api.getUtils().post("api_user_key=" + userkey + "&api_results_limit=" + results_limit + "&api_option=list"));
+        return api.parse(api.getNewPoster().withArg("api_results_limit", results_limit).withArg("api_option", "list").post());
     }
 
     /**
@@ -73,7 +77,7 @@ public class User {
      * @throws PastebinException Thrown if an error occurs; contains the error message.
      */
     public void removePaste(String pasteKey) throws PastebinException {
-        api.getUtils().post("api_dev_key=" + api.getAPIKey() + "&api_user_key=" + userkey + "&api_paste_key=" + pasteKey + "&api_option=delete");
+        api.getNewPoster().withArg("api_user_key", userkey).withArg("api_paste_key", pasteKey).withArg("api_option", "delete");
     }
 
     /**

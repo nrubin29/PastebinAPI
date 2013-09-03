@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class PastebinAPI {
 
 	private String apikey;
-	private Utils utils;
 	
 	/**
 	 * Constructor for PastebinAPI.
@@ -13,11 +12,10 @@ public class PastebinAPI {
 	 */
 	public PastebinAPI(String apikey) {
 		this.apikey = apikey;
-		this.utils = new Utils(this);
 	}
 
-    protected Utils getUtils() {
-        return utils;
+    protected Poster getNewPoster() {
+        return new Poster(this);
     }
 	
 	/**
@@ -52,7 +50,9 @@ public class PastebinAPI {
      * @throws PastebinException Thrown if an error occurs.
      */
     public Paste[] getTrendingPastes() throws PastebinException {
-        return parse(utils.post("api_option=trends"));
+        Poster p = getNewPoster();
+        p.withArg("api_option", "trends");
+        return parse(p.post());
     }
 
     protected Paste[] parse(String[] args) throws PastebinException {
@@ -63,7 +63,7 @@ public class PastebinAPI {
             if (str != null && !str.equals("<paste>")) {
                 if (str.equals("</paste>")) {
                     pastes.add(new Paste(this, current));
-                    current = new ArrayList<String>();
+                    current = new ArrayList<>();
                 }
                 else if (str.startsWith("<paste_")) current.add(str);
             }

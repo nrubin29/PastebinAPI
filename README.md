@@ -1,4 +1,4 @@
-PastebinAPI (1.2.2)
+PastebinAPI (1.2.3)
 ===========
 
 **A complete API for Pastebin written in Java.**
@@ -9,6 +9,8 @@ Learn how to use PastebinAPI [here](https://github.com/nrubin29/PastebinAPI/blob
 
 Changelog
 ===========
+* **1.2.3**
+  * Changes how posting works internally. The new method is much cleaner. 
 
 * **1.2.2**
   * You can now create a paste and give it a File. It will create the paste using the text from that file.

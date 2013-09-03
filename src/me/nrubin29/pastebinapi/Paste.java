@@ -77,7 +77,7 @@ public class Paste {
      * @return The date of creation.
      */
     public Date getDate() {
-        return date;
+        return new Date(date.getTime());
     }
 
     /**
@@ -85,7 +85,7 @@ public class Paste {
      * @return The date of expiration.
      */
     public Date getExpireDate() {
-        return expiredate;
+        return new Date(expiredate.getTime());
     }
 
     /**
@@ -120,7 +120,9 @@ public class Paste {
      * @throws PastebinException Thrown if an error occurs; contains the error message.
      */
     public String[] getText() throws PastebinException {
-        return api.getUtils().post("http://pastebin.com/raw.php?i=" + key, null);
+        Poster p = api.getNewPoster();
+        try { return p.withURL(new URL("http://pastebin.com/raw.php?i=" + key)).post(); }
+        catch (MalformedURLException ignored) { return null; }
     }
 
     /**
@@ -130,12 +132,12 @@ public class Paste {
      * @throws PastebinException Thrown if an error occurs; contains the error message.
      */
     public String getText(String lineSeparator) throws PastebinException {
-        String result = "";
+        StringBuffer result = new StringBuffer();
 
         for (String str : getText()) {
-            result += str + lineSeparator;
+            result.append(str + lineSeparator);
         }
 
-        return result;
+        return result.toString();
     }
 }
